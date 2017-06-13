@@ -8,18 +8,21 @@ public class Word {
     private String miwok;
     private String defaultWord;
     private int imageId=-1;
+    private int soundId;
 
-    public Word(String mi,String de)
+    public Word(String mi,String de,int so)
     {
         miwok=mi;
         defaultWord=de;
+        soundId=so;
     }
 
-    public Word(String mi,String de,int id)
+    public Word(String mi,String de,int id,int so)
     {
         miwok=mi;
         defaultWord=de;
         imageId=id;
+        soundId=so;
     }
 
     public void setMiwok(String text)
@@ -41,6 +44,10 @@ public class Word {
     public int getImageId()
     {
         return imageId;
+    }
+    public int getSoundId()
+    {
+        return soundId;
     }
     public boolean hasimage()
     {
