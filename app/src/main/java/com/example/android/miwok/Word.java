@@ -7,13 +7,12 @@ package com.example.android.miwok;
 public class Word {
     private String miwok;
     private String defaultWord;
-    private int imageId;
+    private int imageId=-1;
 
     public Word(String mi,String de)
     {
         miwok=mi;
         defaultWord=de;
-        imageId=0;
     }
 
     public Word(String mi,String de,int id)
@@ -42,5 +41,12 @@ public class Word {
     public int getImageId()
     {
         return imageId;
+    }
+    public boolean hasimage()
+    {
+        if(imageId==-1)
+            return false;
+        else
+            return true;
     }
 }
