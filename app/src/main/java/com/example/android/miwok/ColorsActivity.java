@@ -1,5 +1,7 @@
 package com.example.android.miwok;
 
+import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +14,35 @@ import java.util.ArrayList;
 public class ColorsActivity extends AppCompatActivity {
 
     private MediaPlayer mp;
+    private AudioManager mAudioManager;
+
+    AudioManager.OnAudioFocusChangeListener onFocus=new AudioManager.OnAudioFocusChangeListener()
+    {
+        @Override
+        public void onAudioFocusChange(int focusChange)
+        {
+            if(focusChange==AudioManager.AUDIOFOCUS_GAIN)
+            {
+                mp.seekTo(mp.getCurrentPosition());
+                mp.start();
+            }
+
+            if(focusChange==AudioManager.AUDIOFOCUS_LOSS)
+            {
+                mp.stop();
+                releaseMediaPlayer();
+            }
+
+            if(focusChange==AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ||
+                    focusChange==AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK)
+            {
+                mp.pause();
+                mp.seekTo(0);
+            }
+
+        }
+
+    };
 
     private MediaPlayer.OnCompletionListener completion=new MediaPlayer.OnCompletionListener()
     {
@@ -34,6 +65,7 @@ public class ColorsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.word_list);
 
+        mAudioManager=(AudioManager) getSystemService(Context.AUDIO_SERVICE);
         final ArrayList<Word> words = new ArrayList<Word>();
 
         words.add(new Word("red", "weṭeṭṭi", R.drawable.color_red, R.raw.color_red));
@@ -54,9 +86,13 @@ public class ColorsActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 releaseMediaPlayer();
-                mp = MediaPlayer.create(view.getContext(), words.get(position).getSoundId());
-                mp.start();
-                mp.setOnCompletionListener(completion);
+                int result=mAudioManager.requestAudioFocus(onFocus, AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+                if(result==AudioManager.AUDIOFOCUS_REQUEST_GRANTED)
+                {
+                    mp=MediaPlayer.create(view.getContext(),words.get(position).getSoundId());
+                    mp.start();
+                    mp.setOnCompletionListener(completion);
+                }
             }
         });
 
@@ -76,6 +112,7 @@ public class ColorsActivity extends AppCompatActivity {
                 // setting the media player to null is an easy way to tell that the media player
                 // is not configured to play an audio file at the moment.
                 mp = null;
+                mAudioManager.abandonAudioFocus(onFocus);
             }
         }
 
